@@ -1,0 +1,85 @@
+apply plugin: 'idea'
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+
+    lombok {
+        version = "${lombok_version}"
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'io.freefair.lombok'
+    apply plugin: 'maven-publish'
+
+    group = "co.akane.example"
+    version = "${application_version}"
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    test {
+        useJUnitPlatform()
+    }
+    dependencies {
+        implementation 'io.projectreactor:reactor-core'
+        implementation 'io.projectreactor.addons:reactor-extra'
+        implementation "org.springframework.boot:spring-boot-starter-webflux"
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'org.springframework:spring-context'
+        implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_databind_version}"
+
+        implementation "org.modelmapper:modelmapper:${modelmapper_version}"
+        implementation "org.reactivecommons.utils:object-mapper:${object_mapper_version}"
+        implementation "org.springframework.boot:spring-boot-configuration-processor"
+        implementation "org.modelmapper:modelmapper:${modelmapper_version}"
+        implementation "org.slf4j:slf4j-api:${slf4j_api_version}"
+        compileOnly "org.projectlombok:lombok:${lombok_version}"
+        annotationProcessor  "org.projectlombok:lombok:${lombok_version}"
+        testCompileOnly  "org.projectlombok:lombok:${lombok_version}"
+        testAnnotationProcessor  "org.projectlombok:lombok:${lombok_version}"
+        implementation platform("org.springframework.boot:spring-boot-dependencies:${spring_boot_version}")
+        testImplementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+        implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+
+        // T E S T
+        testImplementation "io.projectreactor.tools:blockhound-junit-platform:${blockhound_junit_platform_version}"
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation 'io.projectreactor:reactor-test'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'junit:junit:4.13.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+        testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.2'
+    }
+
+    tasks.withType(Test).configureEach {
+        if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_13)) {
+            jvmArgs += [
+                    "-XX:+AllowRedefinitionToAddDeleteMethods"
+            ]
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs = [
+            '-Amapstruct.suppressGeneratorTimestamp=true'
+    ]
+}
+
+tasks.named('wrapper') {
+    gradleVersion = "${gradle_version}"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}

@@ -1,0 +1,30 @@
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    implementation project(':version-1')
+    implementation project(':version-2')
+    implementation project(':version-3')
+
+    implementation "org.springframework.boot:spring-boot-starter"
+    runtimeOnly('org.springframework.boot:spring-boot-devtools')
+    testImplementation "com.tngtech.archunit:archunit:${archunit_version}"
+}
+
+tasks.register('explodedJar', Copy) {
+    with jar
+    into "${buildDir}/exploded"
+}
+
+jar {
+    // To disable the *-plain.jar
+    enabled = false
+}
+
+bootJar {
+    // Sets output jar name
+    archiveFileName = "${project.getParent().getName()}.${archiveExtension.get()}"
+}
+
+springBoot {
+    mainClass = 'co.akane.example.MainApplication'
+}

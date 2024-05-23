@@ -1,0 +1,17 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "unit-test-calculator-example"
+  devtools:
+    add-properties: false
+    restart:
+      enable: false
+  profiles:
+    active: ${ENVIRONMENT} #local, test, prod
+    group:
+      local:
+      - "local"
+      - "version-1"
+      - "version-2"
+      - "version-3"
